@@ -1,0 +1,22 @@
+<div class="days">
+  <div class="grid grid-cols-7 gap-2 pb-3 auto-cols-auto font-medium text-center text-gray-500
+    text-md dark:text-gray-400">
+    <!-- Weekday Labels -->
+    <span class="h-6 leading-6 dow">Su</span>
+    <span class="h-6 leading-6 dow">Mo</span>
+    <span class="h-6 leading-6 dow">Tu</span>
+    <span class="h-6 leading-6 dow">We</span>
+    <span class="h-6 leading-6 dow">Th</span>
+    <span class="h-6 leading-6 dow">Fr</span>
+    <span class="h-6 leading-6 dow">Sa</span>
+  </div>
+  <div class="grid grid-cols-7 auto-cols-auto days-of-month gap-1">
+    <%= for calendar <- @calendars do %>
+      <div class="bg-gradient-to-br from-50% to-50% aspect-content aspect-[1/1] flex justify-center
+        items-center text-sm font-semibold leading-9 text-center border rounded-md hover:bg-gray-100
+        cursor-pointer">
+        <span><%= calendar.date.day %></span>
+      </div>
+    <% end %>
+  </div>
+</div>
