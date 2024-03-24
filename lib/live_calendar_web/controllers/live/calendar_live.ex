@@ -3,7 +3,7 @@ defmodule LiveCalendarWeb.Live.CalendarLive do
   use LiveCalendarWeb, :live_view
 
   alias LiveCalendar.Calendar
-  alias LiveCalendarWeb.Live.CalendarLiveState
+  alias LiveCalendarWeb.Live.CalendarLiveState, as: State
 
   def render(assigns) do
     ~H"""
@@ -25,7 +25,7 @@ defmodule LiveCalendarWeb.Live.CalendarLive do
           class={[
             "bg-gradient-to-br from-50% to-50% aspect-content aspect-[1/1] flex justify-center
             items-center text-sm font-semibold leading-9 text-center border rounded-md",
-            classes(@state.calendars, calendar, @state.arrival, @state.departure)
+            classes(@state, calendar)
           ]}
           phx-click="select_date"
           phx-value-date={date}
@@ -42,26 +42,23 @@ defmodule LiveCalendarWeb.Live.CalendarLive do
   end
 
   def mount(_params, _session, socket) do
-    state = CalendarLiveState.new(Calendar.all())
+    state = State.new(Calendar.all())
 
     {:ok, assign(socket, state: state)}
   end
 
   def handle_event("select_date", %{"date" => date}, %{assigns: %{state: state}} = socket) do
-    state = CalendarLiveState.select(state, date)
+    state = State.select(state, date)
 
     {:noreply, assign(socket, state: state)}
   end
 
   def handle_event("select_date", _, socket), do: {:noreply, socket}
 
-  defp classes(calendars, calendar, arrival_date, departure_date) do
-    arrival = Map.get(calendars, arrival_date)
-    departure = Map.get(calendars, departure_date)
-
+  defp classes(%State{calendars: calendars, arrival: arrival, departure: departure}, calendar) do
     [
-      selection_classes(calendar, arrival, departure),
-      availability_classes(calendar.available, calendar.previous_available)
+      selection_classes(calendar, calendars[arrival], calendars[departure]),
+      availability_classes(calendar)
     ]
   end
 
@@ -84,9 +81,9 @@ defmodule LiveCalendarWeb.Live.CalendarLive do
     ""
   end
 
-  @spec availability_classes(self :: boolean, previous :: boolean) :: binary
-  defp availability_classes(false, true), do: "from-white !to-red-200"
-  defp availability_classes(false, false), do: "bg-red-200 text-gray-400"
-  defp availability_classes(true, false), do: "!from-red-200 to-white"
-  defp availability_classes(true, true), do: "from-white to-white"
+  @spec availability_classes(Calendar.t()) :: binary
+  defp availability_classes(%Calendar{available: false, previous_available: true}), do: "from-white !to-red-200"
+  defp availability_classes(%Calendar{available: false, previous_available: false}), do: "bg-red-200 text-gray-400"
+  defp availability_classes(%Calendar{available: true, previous_available: false}), do: "!from-red-200 to-white"
+  defp availability_classes(%Calendar{available: true, previous_available: true}), do: "from-white to-white"
 end

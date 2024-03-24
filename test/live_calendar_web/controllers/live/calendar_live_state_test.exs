@@ -163,14 +163,7 @@ defmodule LiveCalendarWeb.Live.CalendarLiveStateTest do
       {~D[2024-03-05], false},
       {~D[2024-03-06], true},
       {~D[2024-03-07], true},
-      {~D[2024-03-08], true},
-      {~D[2024-03-09], true},
-      {~D[2024-03-10], true},
-      {~D[2024-03-11], true},
-      {~D[2024-03-12], true},
-      {~D[2024-03-13], true},
-      {~D[2024-03-14], true},
-      {~D[2024-03-15], true}
+      {~D[2024-03-08], true}
     ]
     |> Enum.chunk_every(2, 1, :discard)
     |> Enum.map(fn [{_, previous}, {date, available}] -> Calendar.new(date, available, previous) end)

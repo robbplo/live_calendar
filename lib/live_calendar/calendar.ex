@@ -24,9 +24,10 @@ defmodule LiveCalendar.Calendar do
   def all do
     list_dates()
     |> Enum.chunk_every(2, 1, :discard)
-    |> Enum.map(&process_chunk/1)
+    |> Enum.map(fn [{_, previous}, {date, available}] -> new(date, available, previous) end)
   end
 
+  @spec available_between?(Date.t() | binary, Date.t() | binary) :: boolean
   def available_between?(from, to) when is_binary(from) and is_binary(to) do
     case {Date.from_iso8601(from), Date.from_iso8601(to)} do
       {{:ok, from}, {:ok, to}} -> available_between?(from, to)
@@ -40,6 +41,7 @@ defmodule LiveCalendar.Calendar do
     |> do_available_between?()
   end
 
+  @spec do_available_between?([t()], boolean) :: boolean
   defp do_available_between?(calendars, acc \\ true)
   # Return false if any date is not available
   defp do_available_between?(_, false), do: false
@@ -55,10 +57,7 @@ defmodule LiveCalendar.Calendar do
     do_available_between?(rest, acc and first.available)
   end
 
-  defp process_chunk([{_, previous_available}, {date, available}]) do
-    new(date, available, previous_available)
-  end
-
+  # substitute for the database
   defp list_dates do
     [
       {~D[2024-02-28], true},
