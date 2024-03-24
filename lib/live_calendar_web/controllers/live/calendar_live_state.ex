@@ -69,11 +69,11 @@ defmodule LiveCalendarWeb.Live.CalendarLiveState do
 
   defp set_arrival(state, _), do: state
 
-  # Set the departure date to the selected date if:
-  # - The previous date was not available and the selected date is available
-  # - The previous date was available
+  # Set the departure date to the selected date if one of the following conditions is met:
+  # - The current date is available
+  # - The previous date was not available
   @spec set_departure(t(), Calendar.t()) :: t()
-  defp set_departure(state, %Calendar{previous_available: false, available: true, date: date}) do
+  defp set_departure(state, %Calendar{available: true, date: date}) do
     %__MODULE__{state | departure: to_string(date)}
   end
 

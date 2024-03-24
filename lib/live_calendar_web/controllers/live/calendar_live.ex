@@ -60,17 +60,17 @@ defmodule LiveCalendarWeb.Live.CalendarLive do
     departure = Map.get(calendars, departure_date)
 
     [
-      date_classes(calendar, arrival, departure),
-      availability_classes(calendar.available, calendar.previous_available, calendar.next_available)
+      selection_classes(calendar, arrival, departure),
+      availability_classes(calendar.available, calendar.previous_available)
     ]
   end
 
-  @spec date_classes(Calendar.t(), Calendar.t() | nil, Calendar.t() | nil) :: String.t()
-  defp date_classes(calendar, %Calendar{} = arrival, nil) do
+  @spec selection_classes(Calendar.t(), Calendar.t() | nil, Calendar.t() | nil) :: String.t()
+  defp selection_classes(calendar, %Calendar{} = arrival, nil) do
     calendar.date == arrival.date && "!to-green-200"
   end
 
-  defp date_classes(calendar, %Calendar{} = arrival, %Calendar{} = departure) do
+  defp selection_classes(calendar, %Calendar{} = arrival, %Calendar{} = departure) do
     case {Date.compare(calendar.date, arrival.date), Date.compare(calendar.date, departure.date)} do
       {:eq, _} -> "!to-green-200"
       {_, :eq} -> "!from-green-200"
@@ -80,13 +80,13 @@ defmodule LiveCalendarWeb.Live.CalendarLive do
     end
   end
 
-  defp date_classes(_, _, _) do
+  defp selection_classes(_, _, _) do
     ""
   end
 
-  @spec availability_classes(self :: boolean, previous :: boolean, next :: boolean) :: binary
-  defp availability_classes(false, true, _), do: "from-white !to-red-200"
-  defp availability_classes(false, false, _), do: "bg-red-200 text-gray-400"
-  defp availability_classes(true, false, _), do: "!from-red-200 to-white"
-  defp availability_classes(_, _, _), do: "from-white to-white"
+  @spec availability_classes(self :: boolean, previous :: boolean) :: binary
+  defp availability_classes(false, true), do: "from-white !to-red-200"
+  defp availability_classes(false, false), do: "bg-red-200 text-gray-400"
+  defp availability_classes(true, false), do: "!from-red-200 to-white"
+  defp availability_classes(true, true), do: "from-white to-white"
 end

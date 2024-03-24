@@ -3,29 +3,27 @@ defmodule LiveCalendar.Calendar do
   This module is responsible for managing the calendar data.
   """
 
-  defstruct [:date, :available, :previous_available, :next_available]
+  defstruct [:date, :available, :previous_available]
 
   @type t() :: %__MODULE__{
           date: Date.t(),
           available: boolean,
-          previous_available: boolean,
-          next_available: boolean
+          previous_available: boolean
         }
 
-  @spec new(Date.t(), boolean, boolean, boolean) :: t()
-  def new(date, available, previous_available, next_available) do
+  @spec new(Date.t(), boolean, boolean) :: t()
+  def new(date, available, previous_available) do
     %__MODULE__{
       date: date,
       available: available,
-      previous_available: previous_available,
-      next_available: next_available
+      previous_available: previous_available
     }
   end
 
   @spec all() :: [t()]
   def all do
     list_dates()
-    |> Enum.chunk_every(3, 1, :discard)
+    |> Enum.chunk_every(2, 1, :discard)
     |> Enum.map(&process_chunk/1)
   end
 
@@ -57,8 +55,8 @@ defmodule LiveCalendar.Calendar do
     do_available_between?(rest, acc and first.available)
   end
 
-  defp process_chunk([{_, previous_available}, {date, available}, {_, next_available}]) do
-    new(date, available, previous_available, next_available)
+  defp process_chunk([{_, previous_available}, {date, available}]) do
+    new(date, available, previous_available)
   end
 
   defp list_dates do
