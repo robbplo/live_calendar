@@ -1,5 +1,8 @@
-defmodule LiveCalendarWeb.Live.Calendar do
-  @moduledoc false
+defmodule LiveCalendar.Calendar do
+  @moduledoc """
+  This module is responsible for managing the calendar data.
+  """
+
   defstruct [:date, :available, :previous_available, :next_available]
 
   @type t() :: %__MODULE__{
@@ -9,12 +12,49 @@ defmodule LiveCalendarWeb.Live.Calendar do
           next_available: boolean
         }
 
+  @spec new(Date.t(), boolean, boolean, boolean) :: t()
+  def new(date, available, previous_available, next_available) do
+    %__MODULE__{
+      date: date,
+      available: available,
+      previous_available: previous_available,
+      next_available: next_available
+    }
+  end
 
-  @spec list_calendars() :: [t()]
-  def list_calendars do
+  @spec all() :: [t()]
+  def all do
     list_dates()
     |> Enum.chunk_every(3, 1, :discard)
     |> Enum.map(&process_chunk/1)
+  end
+
+  def available_between?(from, to) when is_binary(from) and is_binary(to) do
+    case {Date.from_iso8601(from), Date.from_iso8601(to)} do
+      {{:ok, from}, {:ok, to}} -> available_between?(from, to)
+      _ -> false
+    end
+  end
+
+  def available_between?(from, to) do
+    all()
+    |> Enum.filter(fn %{date: date} -> date in Date.range(from, to) end)
+    |> do_available_between?()
+  end
+
+  defp do_available_between?(calendars, acc \\ true)
+  # Return false if any date is not available
+  defp do_available_between?(_, false), do: false
+  # Return accumulator if all dates are available
+  defp do_available_between?([], acc), do: acc
+
+  # For the last date, only the previous date needs to be available
+  defp do_available_between?([last], acc) do
+    acc and last.previous_available
+  end
+
+  defp do_available_between?([first | rest], acc) do
+    do_available_between?(rest, acc and first.available)
   end
 
   defp process_chunk([{_, previous_available}, {date, available}, {_, next_available}]) do
@@ -57,15 +97,5 @@ defmodule LiveCalendarWeb.Live.Calendar do
       {~D[2024-03-31], true},
       {~D[2024-04-01], true}
     ]
-  end
-
-  @spec new(Date.t(), boolean, boolean, boolean) :: t()
-  def new(date, available, previous_available, next_available) do
-    %__MODULE__{
-      date: date,
-      available: available,
-      previous_available: previous_available,
-      next_available: next_available
-    }
   end
 end

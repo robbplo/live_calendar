@@ -50,5 +50,4 @@ defmodule LiveCalendarWeb.Endpoint do
   plug Plug.Head
   plug Plug.Session, @session_options
   plug LiveCalendarWeb.Router
-  ?
 end
