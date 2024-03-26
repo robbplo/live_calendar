@@ -56,16 +56,7 @@ if config_env() == :prod do
       ip: {0, 0, 0, 0, 0, 0, 0, 0},
       port: port
     ],
-    secret_key_base: secret_key_base,
-    https: [
-      port: 443,
-      cipher_suite: :strong,
-      otp_app: :live_calendar,
-      keyfile: System.get_env("LIVE_CALENDAR_SSL_KEY_PATH"),
-      certfile: System.get_env("LIVE_CALENDAR_SSL_CERT_PATH"),
-      # OPTIONAL Key for intermediate certificates:
-      cacertfile: System.get_env("INTERMEDIATE_CERTFILE_PATH")
-    ]
+    secret_key_base: secret_key_base
 
   # ## SSL Support
   #

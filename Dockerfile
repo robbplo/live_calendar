@@ -3,8 +3,6 @@ FROM hexpm/elixir:1.15.6-erlang-26.0.2-alpine-3.17.4
 
 ARG APP_NAME=live_calendar
 
-ENV MIX_ENV=prod TERM=xterm
-
 WORKDIR /opt/app
 
 RUN apk update \
@@ -14,11 +12,15 @@ RUN apk update \
 
 COPY . .
 
-RUN mix do deps.get, deps.compile
+ENV MIX_ENV=prod TERM=xterm
+RUN mix do deps.get --only prod
 RUN mix compile
+RUN mix assets.deploy
 RUN mix phx.digest
-RUN mix release --overwrite \
+RUN echo "Building release for env ${MIX_ENV}"
+RUN mix release \
   && mv _build/prod/rel/${APP_NAME} /opt/release \
+  && mv rel/overlays/bin/* /opt/release/bin \
   && mv /opt/release/bin/${APP_NAME} /opt/release/bin/${APP_NAME}
 
 # Release
