@@ -18,7 +18,13 @@ defmodule LiveCalendarWeb.Router do
     pipe_through :browser
 
     live "/", Live.CalendarLive
-    live "/admin", Live.AdminLive
+  end
+
+  scope "/admin", LiveCalendarWeb do
+    pipe_through [:browser]
+
+    live "/calendars", Live.Admin.CalendarsLive
+    live "/calendars/create", Live.Admin.CreateCalendarLive
   end
 
   # Other scopes may use custom stacks.

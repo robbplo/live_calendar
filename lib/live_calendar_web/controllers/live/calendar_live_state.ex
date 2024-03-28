@@ -2,7 +2,7 @@ defmodule LiveCalendarWeb.Live.CalendarLiveState do
   @moduledoc """
   This struct contains the state of the calendar live component
   """
-  alias LiveCalendar.Calendar
+  alias LiveCalendarWeb.Live.Calendar
 
   @enforce_keys [:calendars, :arrival, :departure]
   defstruct [:calendars, :arrival, :departure]

@@ -2,7 +2,7 @@ defmodule LiveCalendarWeb.Live.CalendarLive do
   @moduledoc false
   use LiveCalendarWeb, :live_view
 
-  alias LiveCalendar.Calendar
+  alias LiveCalendarWeb.Live.Calendar
   alias LiveCalendarWeb.Live.CalendarLiveState, as: State
 
   def render(assigns) do

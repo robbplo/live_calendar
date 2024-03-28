@@ -1,8 +1,8 @@
-defmodule LiveCalendarWeb.Live.AdminLive do
+defmodule LiveCalendarWeb.Live.Admin.CalendarsLive do
   @moduledoc false
   use LiveCalendarWeb, :live_view
 
-  def mount(params, session, socket) do
+  def mount(_params, _session, socket) do
     {:ok, socket, layout: {LiveCalendarWeb.Layouts, :admin}}
   end
 end
