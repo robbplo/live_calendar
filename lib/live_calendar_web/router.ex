@@ -17,8 +17,7 @@ defmodule LiveCalendarWeb.Router do
   scope "/", LiveCalendarWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
-    live "/calendar", Live.CalendarLive
+    live "/", Live.CalendarLive
   end
 
   # Other scopes may use custom stacks.

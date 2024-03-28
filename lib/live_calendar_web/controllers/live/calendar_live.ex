@@ -77,13 +77,11 @@ defmodule LiveCalendarWeb.Live.CalendarLive do
     end
   end
 
-  defp selection_classes(_, _, _) do
-    ""
-  end
+  defp selection_classes(_, _, _), do: ""
 
   @spec availability_classes(Calendar.t()) :: binary
+  defp availability_classes(%Calendar{available: true, previous_available: true}), do: "from-white to-white"
+  defp availability_classes(%Calendar{available: true, previous_available: false}), do: "!from-red-200 to-white"
   defp availability_classes(%Calendar{available: false, previous_available: true}), do: "from-white !to-red-200"
   defp availability_classes(%Calendar{available: false, previous_available: false}), do: "bg-red-200 text-gray-400"
-  defp availability_classes(%Calendar{available: true, previous_available: false}), do: "!from-red-200 to-white"
-  defp availability_classes(%Calendar{available: true, previous_available: true}), do: "from-white to-white"
 end
