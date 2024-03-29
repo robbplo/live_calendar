@@ -4,19 +4,6 @@ defmodule LiveCalendarWeb.Live.Admin.CreateCalendarLive do
 
   alias LiveCalendar.Calendar
 
-  def render(assigns) do
-    ~H"""
-    <.simple_form for={@form} phx-change="validate" phx-submit="save" phx-debounce="300">
-      <.input field={@form[:date]} label="Date" />
-      <.input field={@form[:available]} label="Available" />
-      <.input field={@form[:minimum_stay]} label="Minimum stay" />
-      <:actions>
-        <.button>Save</.button>
-      </:actions>
-    </.simple_form>
-    """
-  end
-
   # def render(assigns) do
   #   ~H"""
   #   <section class="bg-white dark:bg-gray-900">
@@ -123,6 +110,19 @@ defmodule LiveCalendarWeb.Live.Admin.CreateCalendarLive do
   #   </section>
   #   """
   # end
+
+  def render(assigns) do
+    ~H"""
+    <.simple_form for={@form} phx-change="validate" phx-submit="save" phx-debounce="300">
+      <.input field={@form[:date]} label="Date" />
+      <.input field={@form[:available]} label="Available" />
+      <.input field={@form[:minimum_stay]} label="Minimum stay" />
+      <:actions>
+        <.button>Save</.button>
+      </:actions>
+    </.simple_form>
+    """
+  end
 
   def mount(_params, _session, socket) do
     form = to_form(Calendar.changeset(%Calendar{}, %{}))
