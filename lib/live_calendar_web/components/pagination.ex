@@ -12,6 +12,7 @@ defmodule LiveCalendarWeb.Pagination do
   attr :per_page, :integer, default: 10
   attr :display_buttons, :integer, default: 5
   attr :set_page, :string, default: "set_page"
+  attr :target, :string
 
   def pagination(%{total: total, per_page: per_page} = assigns) do
     assigns = assign(assigns, total_pages: ceil(total / per_page))
@@ -31,6 +32,7 @@ defmodule LiveCalendarWeb.Pagination do
       <ul class="inline-flex items-stretch -space-x-px select-none">
         <li>
           <a
+            phx-target={@target}
             phx-click={@page > 1 && @set_page}
             phx-value-page={@page - 1}
             class="flex items-center justify-center h-full py-1.5 px-3 ml-0 text-gray-500 bg-white
@@ -59,6 +61,7 @@ defmodule LiveCalendarWeb.Pagination do
         <%= if 1 not in @buttons do %>
           <li>
             <a
+            phx-target={@target}
               phx-click={@set_page}
               phx-value-page={1}
               class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500
@@ -80,6 +83,7 @@ defmodule LiveCalendarWeb.Pagination do
 
         <li :for={page <- @buttons}>
           <a
+            phx-target={@target}
             phx-click={@set_page}
             phx-value-page={page}
             class={[
@@ -110,6 +114,7 @@ defmodule LiveCalendarWeb.Pagination do
 
         <li :if={show_end}>
           <a
+            phx-target={@target}
             phx-click={@set_page}
             phx-value-page={@total_pages}
             class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500
@@ -123,6 +128,7 @@ defmodule LiveCalendarWeb.Pagination do
 
         <li>
           <a
+            phx-target={@target}
             phx-click={@page < @total_pages && @set_page}
             phx-value-page={@page + 1}
             class="flex items-center justify-center h-full py-1.5 px-3 leading-tight text-gray-500
