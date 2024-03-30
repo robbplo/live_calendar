@@ -2,7 +2,7 @@ defmodule LiveCalendarWeb.LiveTable do
   @moduledoc false
   use LiveCalendarWeb, :live_component
 
-  import Ecto.Query, only: [from: 1, limit: 2, offset: 2]
+  import Ecto.Query
   import LiveCalendarWeb.Pagination
 
   alias LiveCalendar.Repo
@@ -30,12 +30,14 @@ defmodule LiveCalendarWeb.LiveTable do
                   />
                 </svg>
               </div>
-              <input
-                type="text"
-                id="simple-search"
+              <.input
+                type="date"
+                name="date"
+                value=""
                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                placeholder="Search"
-                required=""
+                phx-change="search"
+                phx-debounce="300"
+                phx-target={@myself}
               />
             </div>
           </form>
@@ -124,8 +126,6 @@ defmodule LiveCalendarWeb.LiveTable do
               <td :for={col <- @col} class="px-4 py-3"><%= render_slot(col, row) %></td>
               <td class="px-4 py-3 flex items-center justify-end">
                 <button
-                  id="apple-imac-27-dropdown-button"
-                  data-dropdown-toggle="apple-imac-27-dropdown"
                   class="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
                   type="button"
                 >
@@ -139,10 +139,7 @@ defmodule LiveCalendarWeb.LiveTable do
                     <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
                   </svg>
                 </button>
-                <div
-                  id="apple-imac-27-dropdown"
-                  class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600"
-                >
+                <div class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
                   <ul
                     class="py-1 text-sm text-gray-700 dark:text-gray-200"
                     aria-labelledby="apple-imac-27-dropdown-button"
@@ -188,22 +185,25 @@ defmodule LiveCalendarWeb.LiveTable do
   end
 
   def update(%{schema: _} = assigns, socket) do
-    {:ok, socket |> assign(assigns) |> update_results()}
+    IO.inspect("init")
+    {:ok, socket |> assign(assigns) |> fetch_results()}
   end
 
-  def update(%{page: page}, socket) do
-    socket =
-      socket
-      |> assign(page: page)
-      |> update_results()
-
-    {:ok, socket}
+  def update(_assigns, socket) do
+    IO.inspect("update")
+    {:ok, fetch_results(socket)}
   end
 
-  def update_results(socket) do
+  def fetch_results(socket) do
     per_page = socket.assigns.per_page
     offset = (socket.assigns.page - 1) * per_page
     query = from(socket.assigns.schema)
+
+    query =
+      case socket.assigns[:date] do
+        nil -> query
+        date -> where(query, date: ^date)
+      end
 
     results =
       query
@@ -216,8 +216,17 @@ defmodule LiveCalendarWeb.LiveTable do
   end
 
   def handle_event("set_page", %{"page" => page}, socket) do
-    IO.inspect(socket)
-    send_update(socket.assigns.myself, page: String.to_integer(page))
+    send_update(socket.assigns.myself, do: "it")
     {:noreply, assign(socket, page: String.to_integer(page))}
+  end
+
+  def handle_event("search", %{"date" => date}, socket) do
+    send_update(socket.assigns.myself, do: "it")
+    {:noreply, assign(socket, date: date)}
+  end
+
+  def handle_event(_, _, socket) do
+    IO.inspect("test")
+    {:noreply, socket}
   end
 end
