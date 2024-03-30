@@ -25,7 +25,7 @@ if config_env() == :prod do
 
   config :live_calendar, LiveCalendar.Repo,
     # ssl: true,
-    database: "live_calendar_test",
+    database: "live_calendar.sqlite",
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
     socket_options: maybe_ipv6
 

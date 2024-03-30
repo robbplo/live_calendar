@@ -186,14 +186,7 @@ defmodule LiveCalendarWeb.Live.Admin.CalendarsLive do
               </tbody>
             </table>
           </div>
-          <.pagination
-            total={@total}
-            per_page={@per_page}
-            page={@page}
-            click_next="page_next"
-            click_prev="page_prev"
-            click_number="page_set"
-          />
+          <.pagination total={@total} per_page={@per_page} page={@page} set_page="set_page" />
         </div>
       </div>
     </section>
@@ -210,29 +203,7 @@ defmodule LiveCalendarWeb.Live.Admin.CalendarsLive do
     {:ok, socket, layout: {LiveCalendarWeb.Layouts, :admin}}
   end
 
-  def handle_event("page_next", _, socket) do
-    {:noreply, set_page(socket, &(&1 + 1))}
-  end
-
-  def handle_event("page_prev", _, socket) do
-    {:noreply, set_page(socket, &(&1 + 1))}
-  end
-
-  def handle_event("page_set", %{"page" => page}, socket) do
-    {:noreply, set_page(socket, String.to_integer(page))}
-  end
-
-  defp set_page(socket, update) when is_function(update) do
-    page = update.(socket.assigns.page)
-    dbg(page)
-    set_page(socket, page)
-  end
-
-  defp set_page(socket, page) do
-    dbg(page)
-
-    if page > 0 and page <= socket.assigns.total,
-      do: assign(socket, page: page),
-      else: socket
+  def handle_event("set_page", %{"page" => page}, socket) do
+    {:noreply, assign(socket, page: String.to_integer(page))}
   end
 end
