@@ -10,6 +10,8 @@ defmodule LiveCalendarWeb.LiveTable do
   def render(assigns) do
     ~H"""
     <div class="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
+      <.flash_group flash={@flash} />
+      <form id="selection" class="hidden"></form>
       <div class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
         <div class="w-full md:w-1/2">
           <form class="flex items-center">
@@ -42,7 +44,8 @@ defmodule LiveCalendarWeb.LiveTable do
             </div>
           </form>
         </div>
-        <div class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch md:items-center justify-end md:space-x-3 flex-shrink-0">
+        <div class="w-full md:w-auto flex flex-col md:flex-row space-y-2 md:space-y-0 items-stretch
+          md:items-center justify-end md:space-x-3 flex-shrink-0 relative">
           <button
             type="button"
             class="flex items-center justify-center text-white bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 font-medium rounded-lg text-sm px-4 py-2 dark:bg-primary-600 dark:hover:bg-primary-700 focus:outline-none dark:focus:ring-primary-800"
@@ -62,114 +65,63 @@ defmodule LiveCalendarWeb.LiveTable do
             </svg>
             Add product
           </button>
-          <div class="flex items-center space-x-3 w-full md:w-auto">
-            <button
-              id="actionsDropdownButton"
-              data-dropdown-toggle="actionsDropdown"
-              class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-              type="button"
-            >
-              <svg
-                class="-ml-1 mr-1.5 w-5 h-5"
-                fill="currentColor"
-                viewbox="0 0 20 20"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
+          <.dropdown :if={length(@selected) > 0}>
+            <div class="py-1">
+              <a
+                class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
+                phx-click="delete_selected"
+                phx-target={@myself}
               >
-                <path
-                  clip-rule="evenodd"
-                  fill-rule="evenodd"
-                  d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                />
-              </svg>
-              Actions
-            </button>
-            <div
-              id="actionsDropdown"
-              class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600"
-            >
-              <ul
-                class="py-1 text-sm text-gray-700 dark:text-gray-200"
-                aria-labelledby="actionsDropdownButton"
-              >
-                <li>
-                  <a
-                    href="#"
-                    class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                  >
-                    Mass Edit
-                  </a>
-                </li>
-              </ul>
-              <div class="py-1">
-                <a
-                  href="#"
-                  class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-                >
-                  Delete all
-                </a>
-              </div>
+                Delete selected
+              </a>
             </div>
-          </div>
+          </.dropdown>
         </div>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
           <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
+              <th scope="col" class="px-4 py-3">
+                <input
+                  type="checkbox"
+                  form="selection"
+                  name="select_page"
+                  phx-change="select_page"
+                  phx-target={@myself}
+                  checked={Enum.count(@selected) == length(@results)}
+                />
+              </th>
               <th :for={col <- @col} scope="col" class="px-4 py-3"><%= col[:title] %></th>
               <th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th>
             </tr>
           </thead>
           <tbody>
             <tr :for={row <- @results} class="border-b dark:border-gray-700">
+              <td class="px-4 py-3">
+                <input
+                  type="checkbox"
+                  form="selection"
+                  name="selected[]"
+                  id={"selection-#{row.id}"}
+                  phx-click="select"
+                  phx-value-id={row.id}
+                  phx-target={@myself}
+                  phx-hook="DetectShift"
+                  checked={Enum.member?(@selected, row.id)}
+                />
+              </td>
               <td :for={col <- @col} class="px-4 py-3"><%= render_slot(col, row) %></td>
               <td class="px-4 py-3 flex items-center justify-end">
                 <button
-                  class="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
                   type="button"
+                  class="text-gray-400 hover:text-gray-600 dark:text-gray-300 dark:hover:text-gray-200"
+                  phx-click="delete"
+                  phx-value-id={row.id}
+                  phx-target={@myself}
                 >
-                  <svg
-                    class="w-5 h-5"
-                    aria-hidden="true"
-                    fill="currentColor"
-                    viewbox="0 0 20 20"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
-                  </svg>
+                  <.icon name="hero-trash" class="" />
                 </button>
-                <div class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
-                  <ul
-                    class="py-1 text-sm text-gray-700 dark:text-gray-200"
-                    aria-labelledby="apple-imac-27-dropdown-button"
-                  >
-                    <li>
-                      <a
-                        href="#"
-                        class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                      >
-                        Show
-                      </a>
-                    </li>
-                    <li>
-                      <a
-                        href="#"
-                        class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                      >
-                        Edit
-                      </a>
-                    </li>
-                  </ul>
-                  <div class="py-1">
-                    <a
-                      href="#"
-                      class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-                    >
-                      Delete
-                    </a>
-                  </div>
-                </div>
               </td>
             </tr>
           </tbody>
@@ -181,22 +133,54 @@ defmodule LiveCalendarWeb.LiveTable do
   end
 
   def mount(socket) do
-    {:ok, assign(socket, page: 1, per_page: 10, results: [], total: 0)}
+    {:ok, assign(socket, page: 1, per_page: 10, results: [], total: 0, selected: [], last_selected: nil)}
   end
 
-  def update(%{schema: _} = assigns, socket) do
-    IO.inspect("init")
+  def update(assigns, socket) do
     {:ok, socket |> assign(assigns) |> fetch_results()}
   end
 
-  def update(_assigns, socket) do
-    IO.inspect("update")
-    {:ok, fetch_results(socket)}
+  def handle_event("select_page", assigns, socket) do
+    selected =
+      case assigns["select_page"] do
+        "on" -> Enum.map(socket.assigns.results, & &1.id)
+        _ -> []
+      end
+
+    {:noreply, assign(socket, selected: selected)}
   end
 
-  def fetch_results(socket) do
-    per_page = socket.assigns.per_page
-    offset = (socket.assigns.page - 1) * per_page
+  def handle_event("select", assigns, socket) do
+    {:noreply, handle_select(socket, assigns)}
+  end
+
+  def handle_event("set_page", %{"page" => page}, socket) do
+    {:noreply, socket |> assign(page: String.to_integer(page)) |> fetch_results()}
+  end
+
+  def handle_event("search", %{"date" => date}, socket) do
+    {:noreply, socket |> assign(date: date) |> fetch_results()}
+  end
+
+  def handle_event("delete", %{"id" => id}, socket) do
+    with %{} = record <- Enum.find(socket.assigns.results, &(&1.id == String.to_integer(id))),
+         {:ok, _} <- Repo.delete(record) do
+      {:noreply, fetch_results(socket)}
+    else
+      nil -> {:noreply, put_flash(socket, :error, "Record not found")}
+      {:error, _} -> {:noreply, put_flash(socket, :error, "Failed to delete record")}
+    end
+  end
+
+  def handle_event("delete_selected", _, socket) do
+    case Repo.delete_all(from(r in socket.assigns.schema, where: r.id in ^socket.assigns.selected)) do
+      {_deleted, nil} -> {:noreply, socket |> fetch_results() |> assign(selected: [])}
+      {:error, _} -> {:noreply, put_flash(socket, :error, "Failed to delete records")}
+    end
+  end
+
+  defp fetch_results(socket) do
+    offset = (socket.assigns.page - 1) * socket.assigns.per_page
     query = from(socket.assigns.schema)
 
     query =
@@ -207,7 +191,7 @@ defmodule LiveCalendarWeb.LiveTable do
 
     results =
       query
-      |> limit(^per_page)
+      |> limit(^socket.assigns.per_page)
       |> offset(^offset)
       |> Repo.all()
 
@@ -215,18 +199,23 @@ defmodule LiveCalendarWeb.LiveTable do
     assign(socket, results: results, total: total)
   end
 
-  def handle_event("set_page", %{"page" => page}, socket) do
-    send_update(socket.assigns.myself, do: "it")
-    {:noreply, assign(socket, page: String.to_integer(page))}
-  end
+  defp handle_select(socket, assigns) do
+    id = String.to_integer(assigns["id"])
 
-  def handle_event("search", %{"date" => date}, socket) do
-    send_update(socket.assigns.myself, do: "it")
-    {:noreply, assign(socket, date: date)}
-  end
+    diff =
+      case {socket.assigns.last_selected, assigns["shift-pressed"]} do
+        {previous, "true"} when is_integer(previous) -> Enum.to_list(previous..id)
+        _ -> [id]
+      end
 
-  def handle_event(_, _, socket) do
-    IO.inspect("test")
-    {:noreply, socket}
+    new_selection =
+      case assigns["value"] do
+        "on" -> Enum.uniq(socket.assigns.selected ++ diff)
+        _ -> Enum.uniq(socket.assigns.selected -- diff)
+      end
+
+    socket
+    |> assign(selected: new_selection)
+    |> assign(last_selected: id)
   end
 end

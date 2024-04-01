@@ -559,7 +559,10 @@ defmodule LiveCalendarWeb.CoreComponents do
   def back(assigns) do
     ~H"""
     <div class="mt-16">
-      <.link navigate={@navigate} class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700">
+      <.link
+        navigate={@navigate}
+        class="text-sm font-semibold leading-6 text-zinc-900 hover:text-zinc-700"
+      >
         <.icon name="hero-arrow-left-solid" class="h-3 w-3" />
         <%= render_slot(@inner_block) %>
       </.link>
@@ -594,6 +597,52 @@ defmodule LiveCalendarWeb.CoreComponents do
     """
   end
 
+  ## Custom Components
+
+  slot :inner_block, required: true
+
+  def dropdown(assigns) do
+    ~H"""
+    <div class="flex items-center space-x-3 w-full md:w-auto">
+      <button
+        id="actionsDropdownButton"
+        data-dropdown-toggle="actionsDropdown"
+        class="w-full md:w-auto flex items-center justify-center py-2 px-4 text-sm font-medium
+        text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200
+        hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200
+        dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600
+        dark:hover:text-white dark:hover:bg-gray-700"
+        type="button"
+        phx-click={toggle("#actionsDropdown")}
+        phx-click-away={hide("#actionsDropdown")}
+        phx-throttle="200"
+      >
+        <svg
+          class="-ml-1 mr-1.5 w-5 h-5"
+          fill="currentColor"
+          viewbox="0 0 20 20"
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+        >
+          <path
+            clip-rule="evenodd"
+            fill-rule="evenodd"
+            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+          />
+        </svg>
+        Actions
+      </button>
+      <div
+        id="actionsDropdown"
+        class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700
+        dark:divide-gray-600 absolute top-full right-0 mt-3"
+      >
+        <%= render_slot(@inner_block) %>
+      </div>
+    </div>
+    """
+  end
+
   ## JS Commands
 
   def show(js \\ %JS{}, selector) do
@@ -611,6 +660,18 @@ defmodule LiveCalendarWeb.CoreComponents do
       time: 200,
       transition:
         {"transition-all transform ease-in duration-200", "opacity-100 translate-y-0 sm:scale-100",
+         "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"}
+    )
+  end
+
+  def toggle(js \\ %JS{}, selector) do
+    JS.toggle(js,
+      to: selector,
+      in:
+        {"transition-all transform ease-out duration-200", "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95",
+         "opacity-100 translate-y-0 sm:scale-100"},
+      out:
+        {"transition-all transform ease-in duration-150", "opacity-100 translate-y-0 sm:scale-100",
          "opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"}
     )
   end
