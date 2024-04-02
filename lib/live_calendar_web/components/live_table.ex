@@ -89,7 +89,7 @@ defmodule LiveCalendarWeb.LiveTable do
                   name="select_page"
                   phx-change="select_page"
                   phx-target={@myself}
-                  checked={Enum.count(@selected) == length(@results)}
+                  checked={Enum.count(@selected) == length(@results) && length(@results) > 0}
                 />
               </th>
               <th :for={col <- @col} scope="col" class="px-4 py-3"><%= col[:title] %></th>
